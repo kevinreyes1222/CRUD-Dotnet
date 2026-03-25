@@ -1,0 +1,57 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+
+# Rider
+.idea/
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+
+# Dotnet
+project.lock.json
+project.assets.json
+*.dotsettings.user
+
+# ASP.NET / Node
+node_modules/
+wwwroot/node_modules/
+npm-debug.log
+yarn-error.log
+
+# User secrets / environment
+appsettings.*.Development.json
+appsettings.*.Local.json
+secrets.json
+.env
+
+# Database files
+*.mdf
+*.ldf
+*.db
+
+# Logs and temp
+*.log
+*.tmp
+.tmp/
+
+# Test results
+TestResults/
+*.trx
+
+# Publish
+publish/
+*.Publish.xml
+
+# Rider / ReSharper
+_ReSharper*/
+*.DotSettings.user
