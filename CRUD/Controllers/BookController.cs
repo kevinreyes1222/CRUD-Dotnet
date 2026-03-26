@@ -18,7 +18,7 @@ namespace CRUD.Controllers
 
         public BookController(LibraryContext context) { _context = context; }
 
-
+        #region Get Requets
         [HttpGet]
 
         public async Task<IEnumerable<BookDto>> Get() =>
@@ -53,20 +53,23 @@ namespace CRUD.Controllers
             return Ok(bookDto);
         }
 
+        #endregion
+
+        #region Post Requests
         [HttpPost]
 
-        public async Task<ActionResult<BookDto>> Add(BookInsertDto bookInsertDto){
-        
-        var book = new Book() { 
-            
-            Title = bookInsertDto.Title,
-            Description = bookInsertDto.Description,
-            Page = bookInsertDto.Page
+        public async Task<ActionResult<BookDto>> Add(BookInsertDto bookInsertDto) {
 
-        };
-        
-        await _context.Book.AddAsync(book);
-         await   _context.SaveChangesAsync();
+            var book = new Book() {
+
+                Title = bookInsertDto.Title,
+                Description = bookInsertDto.Description,
+                Page = bookInsertDto.Page
+
+            };
+
+            await _context.Book.AddAsync(book);
+            await _context.SaveChangesAsync();
 
             var bookDto = new BookDto
             {
@@ -76,12 +79,78 @@ namespace CRUD.Controllers
                 Page = book.Page
             };
 
-            return CreatedAtAction(nameof( GetById), new {id = book.IdBook}, bookDto);
+            return CreatedAtAction(nameof(GetById), new { id = book.IdBook }, bookDto);
+        }
+
+        #endregion
+
+
+        [HttpPut("{id}")]
+
+        public async Task<ActionResult<BookDto>> Update(int id, BookInsertDto bookInsertDto)
+        {
+            var book = await _context.Book.FindAsync(id);
+
+            if(book == null)
+            {
+                return NotFound();
+            }
+
+            book.Description = bookInsertDto.Description;
+            book.Title = bookInsertDto.Title;
+            book.Page = bookInsertDto.Page;
+            await _context.SaveChangesAsync();
+
+
+            var BookDto = new BookDto
+            {
+                IdBook = book.IdBook,
+                Title = book.Title,
+                Description = book.Description,
+                Page = book.Page
+            };
+
+            return Ok(BookDto);
+
+
+        }
+
+
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var book = await _context.Book.FindAsync(id);
+
+            if (book == null)
+            {
+                return NotFound();
+
+            }
+
+            _context.Book.Remove(book);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
 
 
 
 
 
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+
 }
