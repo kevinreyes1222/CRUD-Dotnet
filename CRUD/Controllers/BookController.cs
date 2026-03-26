@@ -3,6 +3,7 @@ using CRUD.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata.Ecma335;
 
 namespace CRUD.Controllers
 {
@@ -54,8 +55,33 @@ namespace CRUD.Controllers
 
         [HttpPost]
 
-        public async  Task 
+        public async Task<ActionResult<BookDto>> Add(BookInsertDto bookInsertDto){
+        
+        var book = new Book() { 
+            
+            Title = bookInsertDto.Title,
+            Description = bookInsertDto.Description,
+            Page = bookInsertDto.Page
 
-             
-}
+        };
+        
+        await _context.Book.AddAsync(book);
+         await   _context.SaveChangesAsync();
+
+            var bookDto = new BookDto
+            {
+                IdBook = book.IdBook,
+                Title = book.Title,
+                Description = book.Description,
+                Page = book.Page
+            };
+
+            return CreatedAtAction(nameof( GetById), new {id = book.IdBook}, bookDto);
+        }
+
+
+
+
+
+    }
 }
