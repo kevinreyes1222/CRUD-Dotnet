@@ -1,4 +1,7 @@
+using CRUD.DTOs;
 using CRUD.Models;
+using CRUD.Validator;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +16,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<LibraryContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("LibraryConnection")));
 
+//Validators
+
+builder.Services.AddScoped<IValidator<BookInsertDto>, BookInsertValidator>();
 
 var app = builder.Build();
 

@@ -1,5 +1,6 @@
 ﻿using CRUD.DTOs;
 using CRUD.Models;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,8 +16,13 @@ namespace CRUD.Controllers
         //referencia al EF
 
         private LibraryContext _context;
+        private IValidator<BookInsertDto> _bookInsertValidator;
 
-        public BookController(LibraryContext context) { _context = context; }
+        public BookController(LibraryContext context, IValidator<BookInsertDto> bookInsertValidator) 
+        { 
+            _context = context;
+            _bookInsertValidator = bookInsertValidator; 
+        }
 
         #region Get Requets
         [HttpGet]
@@ -58,7 +64,14 @@ namespace CRUD.Controllers
         #region Post Requests
         [HttpPost]
 
-        public async Task<ActionResult<BookDto>> Add(BookInsertDto bookInsertDto) {
+        public async Task<ActionResult<BookDto>> Add(BookInsertDto bookInsertDto) 
+        {
+            var validationResult = await _bookInsertValidator.ValidateAsync(bookInsertDto);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
 
             var book = new Book() {
 
@@ -84,7 +97,7 @@ namespace CRUD.Controllers
 
         #endregion
 
-
+        #region Put Requests
         [HttpPut("{id}")]
 
         public async Task<ActionResult<BookDto>> Update(int id, BookInsertDto bookInsertDto)
@@ -115,8 +128,9 @@ namespace CRUD.Controllers
 
         }
 
+        #endregion
 
-
+        #region Delete Requests
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
@@ -134,6 +148,7 @@ namespace CRUD.Controllers
             return Ok();
         }
 
+        #endregion
 
 
 
@@ -150,7 +165,7 @@ namespace CRUD.Controllers
 
 
 
-        }
+    }
 
 
 }
