@@ -19,6 +19,7 @@ builder.Services.AddDbContext<LibraryContext>(options => options.UseSqlServer(bu
 //Validators
 
 builder.Services.AddScoped<IValidator<BookInsertDto>, BookInsertValidator>();
+builder.Services.AddScoped<IValidator<BookUpdateDto>, BookUpdateValidator>();
 
 var app = builder.Build();
 

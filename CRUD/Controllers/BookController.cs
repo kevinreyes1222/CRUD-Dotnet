@@ -17,11 +17,13 @@ namespace CRUD.Controllers
 
         private LibraryContext _context;
         private IValidator<BookInsertDto> _bookInsertValidator;
+        private IValidator<BookUpdateDto> _bookUpdateValidator;
 
-        public BookController(LibraryContext context, IValidator<BookInsertDto> bookInsertValidator) 
+        public BookController(LibraryContext context, IValidator<BookInsertDto> bookInsertValidator, IValidator<BookUpdateDto> bookUpdateValidator) 
         { 
             _context = context;
             _bookInsertValidator = bookInsertValidator; 
+            _bookUpdateValidator = bookUpdateValidator;
         }
 
         #region Get Requets
@@ -100,18 +102,25 @@ namespace CRUD.Controllers
         #region Put Requests
         [HttpPut("{id}")]
 
-        public async Task<ActionResult<BookDto>> Update(int id, BookInsertDto bookInsertDto)
+        public async Task<ActionResult<BookDto>> Update(int id, BookUpdateDto bookUpdateDto)
         {
             var book = await _context.Book.FindAsync(id);
+
+            var validationResult = await _bookUpdateValidator.ValidateAsync(bookUpdateDto);
+
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors); 
+            }
 
             if(book == null)
             {
                 return NotFound();
             }
 
-            book.Description = bookInsertDto.Description;
-            book.Title = bookInsertDto.Title;
-            book.Page = bookInsertDto.Page;
+            book.Description = bookUpdateDto.Description;
+            book.Title = bookUpdateDto.Title;
+            book.Page = bookUpdateDto.Page;
             await _context.SaveChangesAsync();
 
 
