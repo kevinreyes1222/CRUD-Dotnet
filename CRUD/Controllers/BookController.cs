@@ -1,5 +1,6 @@
 ﻿using CRUD.DTOs;
 using CRUD.Models;
+using CRUD.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,10 +19,12 @@ namespace CRUD.Controllers
         private LibraryContext _context;
         private IValidator<BookInsertDto> _bookInsertValidator;
         private IValidator<BookUpdateDto> _bookUpdateValidator;
+        private IBookService _bookService;
 
-        public BookController(LibraryContext context, IValidator<BookInsertDto> bookInsertValidator, IValidator<BookUpdateDto> bookUpdateValidator) 
+        public BookController(LibraryContext context,IBookService bookService, IValidator<BookInsertDto> bookInsertValidator, IValidator<BookUpdateDto> bookUpdateValidator) 
         { 
             _context = context;
+            _bookService = bookService;
             _bookInsertValidator = bookInsertValidator; 
             _bookUpdateValidator = bookUpdateValidator;
         }
@@ -30,35 +33,16 @@ namespace CRUD.Controllers
         [HttpGet]
 
         public async Task<IEnumerable<BookDto>> Get() =>
-
-             await _context.Book.Select(book => new BookDto
-             {
-                 IdBook = book.IdBook,
-                 Title = book.Title,
-                 Description = book.Description,
-                 Page = book.Page
-             }).ToListAsync();
+          await  _bookService.Get();
+            
 
         [HttpGet("{Id}")]
 
         public async Task<ActionResult<BookDto>> GetById(int id)
         {
-            var book = await _context.Book.FindAsync(id);
+            var bookDto = await _bookService.GetById(id);
 
-            if (book == null)
-            {
-                return NotFound();
-            }
-
-            var bookDto = new BookDto
-            {
-                IdBook = book.IdBook,
-                Title = book.Title,
-                Description = book.Description,
-                Page = book.Page
-            };
-
-            return Ok(bookDto);
+            return bookDto == null ? NotFound() : Ok(bookDto);
         }
 
         #endregion
@@ -75,26 +59,10 @@ namespace CRUD.Controllers
                 return BadRequest(validationResult.Errors);
             }
 
-            var book = new Book() {
+            var bookDto = await _bookService.Add(bookInsertDto);
 
-                Title = bookInsertDto.Title,
-                Description = bookInsertDto.Description,
-                Page = bookInsertDto.Page
 
-            };
-
-            await _context.Book.AddAsync(book);
-            await _context.SaveChangesAsync();
-
-            var bookDto = new BookDto
-            {
-                IdBook = book.IdBook,
-                Title = book.Title,
-                Description = book.Description,
-                Page = book.Page
-            };
-
-            return CreatedAtAction(nameof(GetById), new { id = book.IdBook }, bookDto);
+            return CreatedAtAction(nameof(GetById), new { id = bookDto.IdBook }, bookDto);
         }
 
         #endregion
@@ -141,7 +109,7 @@ namespace CRUD.Controllers
 
         #region Delete Requests
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ActionResult<BookDto>> Delete(int id)
         {
             var book = await _context.Book.FindAsync(id);
 
@@ -154,7 +122,15 @@ namespace CRUD.Controllers
             _context.Book.Remove(book);
             await _context.SaveChangesAsync();
 
-            return Ok();
+            var BookDto = new BookDto
+            {
+                IdBook = book.IdBook,
+                Title = book.Title,
+                Description = book.Description,
+                Page = book.Page
+            };
+
+            return Ok(BookDto);
         }
 
         #endregion

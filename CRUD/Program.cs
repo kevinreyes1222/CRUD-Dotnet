@@ -1,5 +1,6 @@
 using CRUD.DTOs;
 using CRUD.Models;
+using CRUD.Services;
 using CRUD.Validator;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -13,8 +14,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
+//Inyections
 builder.Services.AddDbContext<LibraryContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("LibraryConnection")));
+
+builder.Services.AddScoped<IBookService, BookService>();
 
 //Validators
 
