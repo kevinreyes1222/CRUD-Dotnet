@@ -72,7 +72,6 @@ namespace CRUD.Controllers
 
         public async Task<ActionResult<BookDto>> Update(int id, BookUpdateDto bookUpdateDto)
         {
-            var book = await _context.Book.FindAsync(id);
 
             var validationResult = await _bookUpdateValidator.ValidateAsync(bookUpdateDto);
 
@@ -81,27 +80,9 @@ namespace CRUD.Controllers
                 return BadRequest(validationResult.Errors); 
             }
 
-            if(book == null)
-            {
-                return NotFound();
-            }
+            var bookDto = await _bookService.Update(id, bookUpdateDto);
 
-            book.Description = bookUpdateDto.Description;
-            book.Title = bookUpdateDto.Title;
-            book.Page = bookUpdateDto.Page;
-            await _context.SaveChangesAsync();
-
-
-            var BookDto = new BookDto
-            {
-                IdBook = book.IdBook,
-                Title = book.Title,
-                Description = book.Description,
-                Page = book.Page
-            };
-
-            return Ok(BookDto);
-
+            return bookDto == null ? NotFound() : Ok(bookDto);
 
         }
 
@@ -111,26 +92,9 @@ namespace CRUD.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<BookDto>> Delete(int id)
         {
-            var book = await _context.Book.FindAsync(id);
-
-            if (book == null)
-            {
-                return NotFound();
-
-            }
-
-            _context.Book.Remove(book);
-            await _context.SaveChangesAsync();
-
-            var BookDto = new BookDto
-            {
-                IdBook = book.IdBook,
-                Title = book.Title,
-                Description = book.Description,
-                Page = book.Page
-            };
-
-            return Ok(BookDto);
+           var bookDto = await _bookService.Delete(id);
+            
+            return bookDto == null ? NotFound(bookDto) : Ok(bookDto);
         }
 
         #endregion

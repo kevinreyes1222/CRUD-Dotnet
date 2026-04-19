@@ -46,6 +46,7 @@ namespace CRUD.Services
 
         #endregion
 
+        #region Post requests
         public async Task<BookDto> Add(BookInsertDto bookInsertDto)
         {
             var book = new Book()
@@ -72,14 +73,57 @@ namespace CRUD.Services
             return bookDto;
         }
 
-        public Task<BookDto> Update(int id, BookUpdateDto bookUpdateDto)
+        #endregion
+
+        public async Task<BookDto> Update(int id, BookUpdateDto bookUpdateDto)
         {
-            throw new NotImplementedException();
+            var book = await _libraryContext.Book.FindAsync(id);
+
+            if (book != null)
+            {
+                book.Description = bookUpdateDto.Description;
+                book.Title = bookUpdateDto.Title;
+                book.Page = bookUpdateDto.Page;
+
+                await _libraryContext.SaveChangesAsync();
+
+                var BookDto = new BookDto
+                {
+                    IdBook = book.IdBook,
+                    Title = book.Title,
+                    Description = book.Description,
+                    Page = book.Page
+                };
+
+                return BookDto;
+            }
+
+            return null;
+
         }
 
-        public Task<BookDto> Delete(int id)
+        public async Task<BookDto> Delete(int id)
         {
-            throw new NotImplementedException();
+            var book = await _libraryContext.Book.FindAsync(id);
+
+            if (book != null)
+            {
+                var BookDto = new BookDto
+                {
+                    IdBook = book.IdBook,
+                    Title = book.Title,
+                    Description = book.Description,
+                    Page = book.Page
+                };
+
+
+                _libraryContext.Book.Remove(book);
+                await _libraryContext.SaveChangesAsync();
+
+                return BookDto;
+            }
+
+            return null;
         }
 
         
